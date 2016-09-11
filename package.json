@@ -1,0 +1,38 @@
+{
+  "name": "gulp-fun-style",
+  "version": "0.1.0",
+  "description": "Gulp plugin to write a gulpfile in fun style.",
+  "main": "index.js",
+  "files": [
+    "index.js"
+  ],
+  "scripts": {
+    "lint": "eslint .",
+    "test": "mocha"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/sttk/gulp-fun-style.git"
+  },
+  "keywords": [
+    "gulp",
+    "gulpfile"
+  ],
+  "author": "Takayuki Sato",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/sttk/gulp-fun-style/issues"
+  },
+  "homepage": "https://github.com/sttk/gulp-fun-style#readme",
+  "dependencies": {
+    "es6-weak-map": "^2.0.1"
+  },
+  "devDependencies": {
+    "chai": "^3.5.0",
+    "eslint": "^3.5.0",
+    "gulp": "github:gulpjs/gulp#4.0",
+    "gulp-cli": "^1.2.2",
+    "gulp-test-tools": "github:sttk/gulp-test-tools",
+    "mocha": "^3.0.2"
+  }
+}
