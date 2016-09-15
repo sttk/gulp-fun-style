@@ -1,4 +1,4 @@
-# gulp-fun [![Build Status][travis-image]][travis-url] [![Build Status][appveyor-image]][appveyor-url]
+# gulp-fun-style [![Build Status][travis-image]][travis-url] [![Build Status][appveyor-image]][appveyor-url]
 
 Gulp 4 plugin to write a gulpfile in fun style.
 
@@ -28,22 +28,23 @@ fun.clean = () => { ... }
 fun.styles = () => { ... }
 fun.scripts = () => { ... }
 fun.watch = () => { ... }
-fun.build = () => [[ clean, [ style, scripts ] ]]
-fun.default = fun.build
+fun.build = [[ fun.clean, [ fun.style, fun.scripts ] ]]
+fun.default = [[ 'build', 'watch' ]]
 ```
 
 ### 2. Run gulp
 
 ```
 $ gulp --tasks
-[07:16:05] Tasks for ~/project/gulpfile.js
-[07:16:05] └─┬ default
-[07:16:05]   └─┬ build
-[07:16:05]     └─┬ <series>
-[07:16:05]       ├── clean
-[07:16:05]       └─┬ <parallel>
-[07:16:05]         ├── styles
-[07:16:05]         └── scripts
+[23:24:17] Tasks for ~/project/gulpfile.js
+[23:24:17] └─┬ default
+[23:24:17]   └─┬ <series>
+[23:24:17]     ├─┬ <series>
+[23:24:17]     │ ├── clean
+[23:24:17]     │ └─┬ <parallel>
+[23:24:17]     │   ├── styles
+[23:24:17]     │   └── scripts
+[23:24:17]     └── watch
 ```
 
 ## Notations
@@ -63,25 +64,25 @@ fun.clean = done => { ...; done() }
 ### Define a parallel task
 
 ```js
-fun.compile = () => [ fun.styles, fun.scripts ]
+fun.compile = [ fun.styles, fun.scripts ]
 ```
 
 or
 
 ```js
-fun.compile = () => [ 'styles', 'scripts' ]
+fun.compile = [ 'styles', 'scripts' ]
 ```
 
 ### Define a series task
 
 ```js
-fun.build = () => [[ fun.clean, fun.compile ]]
+fun.build = [[ fun.clean, fun.compile ]]
 ```
 
 or
 
 ```js
-fun.build = () => [[ 'clean', 'compile' ]]
+fun.build = [[ 'clean', 'compile' ]]
 ```
 
 ### Expose a task
