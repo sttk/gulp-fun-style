@@ -8,7 +8,7 @@ Gulp 4 plugin to write a gulpfile in fun style.
 [travis-url]: https://travis-ci.org/sttk/gulp-fun-style
 [appveyor-image]: https://ci.appveyor.com/api/projects/status/github/sttk/gulp-fun-style?branch=master&svg=true
 [appveyor-url]: https://ci.appveyor.com/project/sttk/gulp-fun-style
-[node-image]: https://nodei.co/npm/gulp-fun-style.png↲
+[node-image]: https://nodei.co/npm/gulp-fun-style.png
 [node-url]: https://nodei.co/npm/gulp-fun-style/
 
 ## Install
