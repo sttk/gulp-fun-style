@@ -90,7 +90,7 @@ function resolveArray(name) {
 function resolveArrayRcr(any) {
   switch (typeof any) {
     case 'string': {
-      return funcMap[any];
+      return resolveArrayRcr(funcMap[any]);
     }
     case 'function': {
       var name = nameMap.get(any);

@@ -33,6 +33,7 @@
     "gulp": "github:gulpjs/gulp#4.0",
     "gulp-cli": "^1.2.2",
     "gulp-test-tools": "github:sttk/gulp-test-tools",
-    "mocha": "^3.0.2"
+    "mocha": "^3.0.2",
+    "semver": "^5.3.0"
   }
 }
