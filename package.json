@@ -1,6 +1,6 @@
 {
   "name": "gulp-fun-style",
-  "version": "0.1.2",
+  "version": "0.2.0",
   "description": "Gulp plugin to write a gulpfile in fun style.",
   "main": "index.js",
   "files": [
