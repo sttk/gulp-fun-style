@@ -53,7 +53,8 @@ describe('Using `gulp.series`', function() {
       expect(stderr).to.be.empty;
       expect(stdout).to.equal(
         '├─┬ default       Build and watch for changes\n' +
-        '│ │ --dev         …un-minified\n' +
+        '│ │ --comment     …preserve comments\n' +
+        '│ │ --dev         …un-minified js for develop\n' +
         '│ │ --production  …compressed into single bundle\n' +
         '│ └─┬ <series>\n' +
         '│   ├─┬ <series>\n' +

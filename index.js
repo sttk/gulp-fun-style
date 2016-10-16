@@ -164,21 +164,25 @@ function copyDesc(to, from) {
 }
 
 function mergeFlags(to, from) {
+  to.flags = to.flags || {};
+
   if (Array.isArray(from)) {
     for (var i = 0, n = from.length; i < n; i++) {
       to = mergeFlags(to, from[i]);
     }
-    return to;
   }
 
-  if (Object.prototype.toString.call(from.flags) !== '[object Object]') {
-    return to;
+  if (isPlainObject(from.flags)) {
+    var keys = Object.keys(from.flags);
+    for (var i = 0, n = keys.length; i < n; i++) {
+      var key = keys[i];
+      to.flags[key] = from.flags[key];
+    }
   }
-  to.flags = to.flags || {};
-  var keys = Object.keys(from.flags);
-  for (var i = 0, n = keys.length; i < n; i++) {
-    var key = keys[i];
-    to.flags[key] = from.flags[key];
-  }
+
   return to;
+}
+
+function isPlainObject(v) {
+  return Object.prototype.toString.call(v) === '[object Object]';
 }

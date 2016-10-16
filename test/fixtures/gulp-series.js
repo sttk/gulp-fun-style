@@ -19,9 +19,13 @@ fun.scripts = function(done) {
 };
 fun.scripts.flags = {
   '--dev': 'un-minified',
+  '--comment': 'preserve comments',
 };
 
 fun.build = [[ 'clean', [ fun.scripts, 'styles' ] ]];
+fun.build.flags = {
+  '--dev': 'un-minified js for develop',
+};
 
 fun.serve = function() {
   console.log('serve');
