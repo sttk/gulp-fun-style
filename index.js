@@ -10,14 +10,15 @@ module.exports = funcMap;
 
 process.nextTick(function() {
   Object.keys(funcMap)
-    .filter(resolveSameFunc)
+    .filter(resolveFunc)
     .filter(resolveName)
     .filter(resolveArray)
+    .filter(resolveObject)
     .filter(shouldBeTask)
     .filter(registerTask)
 });
 
-function resolveSameFunc(name) {
+function resolveFunc(name) {
   var any = funcMap[name];
   switch (typeof any) {
     case 'string': {
@@ -37,7 +38,7 @@ function resolveSameFunc(name) {
       return true;
     }
     default: {
-      return Array.isArray(any);
+      return Array.isArray(any) || isPlainObject(any);
     }
   }
 }
@@ -100,6 +101,9 @@ function resolveArrayRcr(any) {
       return toAsyncable(any);
     }
     default: {
+      if (isPlainObject(any)) {
+        return any;
+      }
       if (!Array.isArray(any) || any.length === 0) {
         return null;
       }
@@ -185,4 +189,49 @@ function mergeFlags(to, from) {
 
 function isPlainObject(v) {
   return Object.prototype.toString.call(v) === '[object Object]';
+}
+
+function resolveObject(name) {
+  var any = funcMap[name];
+  if (!isPlainObject(any)) {
+    return true;
+  }
+
+  if ('watch' in any) {
+    var srcName = nameMap.get(any);
+    if (srcName) {
+      funcMap[name] = funcMap[srcName];
+      return true;
+    }
+    nameMap.set(any, name);
+
+    var func;
+    if (typeof any.call === 'string') {
+      var func = function() {
+        gulp.watch(any.watch, any.opts, funcMap[any.call]);
+      };
+      funcMap[name] = func;
+      return true;
+    }
+
+    if (typeof any.call === 'function') {
+      var func = function() {
+        gulp.watch(any.watch, any.opts, toAsyncable(any.call));
+      };
+      funcMap[name] = func;
+      nameMap.set(func, name);
+      return true;
+    }
+
+    if (Array.isArray(typeof any.call)) {
+      var func = function() {
+        gulp.watch(any.watch, any.opts, resolveArrayRcr(any.call));
+      };
+      funcMap[name] = func;
+      nameMap.set(func, name);
+      return true;
+    }
+  }
+
+  return true;
 }

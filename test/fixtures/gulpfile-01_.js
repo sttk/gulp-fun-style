@@ -1,4 +1,6 @@
-const fun = require('../..');
+'use strict';
+
+var fun = require('../..');
 
 fun.build = [[ 'clean', 'uglify' ]];
 fun.build.description = 'Makes product files.';
