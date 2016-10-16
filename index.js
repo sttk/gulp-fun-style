@@ -210,6 +210,7 @@ function resolveObject(name) {
       var func = function() {
         gulp.watch(any.watch, any.opts, funcMap[any.call]);
       };
+      func = mergeFlags(copyDesc(func, any), any);
       funcMap[name] = func;
       return true;
     }
@@ -218,6 +219,7 @@ function resolveObject(name) {
       var func = function() {
         gulp.watch(any.watch, any.opts, toAsyncable(any.call));
       };
+      func = mergeFlags(copyDesc(func, any), any);
       funcMap[name] = func;
       nameMap.set(func, name);
       return true;
@@ -227,6 +229,7 @@ function resolveObject(name) {
       var func = function() {
         gulp.watch(any.watch, any.opts, resolveArrayRcr(any.call));
       };
+      func = mergeFlags(copyDesc(func, any), any);
       funcMap[name] = func;
       nameMap.set(func, name);
       return true;

@@ -18,18 +18,28 @@ var logFile = path.join(__dirname, 'watch.log');
 
 
 describe('Using `gulp.watch`', function() {
-  this.timeout(0);
 
-  before(function() {
-    clear(dir);
-    fs.mkdirSync(dir);
-  });
+  it('Should show a watch task with --tasks flag', function(done) {
+    runner({ verbose: false })
+      .basedir(__dirname)
+      .gulp('--gulpfile fixtures/gulp-watch.js --tasks')
+      .run(cb);
 
-  after(function() {
-    clear(dir);
+    function cb(err, stdout, stderr) {
+      stdout = eraseTime(skipLines(stdout, 2));
+      expect(err).to.be.null;
+      expect(stderr).to.be.empty;
+      expect(stdout).to.equal(
+        '├── default  Watch.\n' +
+        '└── watch    Watch.\n' +
+      '');
+      done();
+    }
   });
 
   it('Should run watch task by `gulp`', function(done) {
+    this.timeout(0);
+
     fs.writeFileSync(file1, 'a', 'utf8');
 
     var child = runner({ verbose: false })
@@ -79,6 +89,15 @@ describe('Using `gulp.watch`', function() {
     }
   });
 
+
+  before(function() {
+    clear(dir);
+    fs.mkdirSync(dir);
+  });
+
+  after(function() {
+    clear(dir);
+  });
 });
 
 function clear(dir) {
