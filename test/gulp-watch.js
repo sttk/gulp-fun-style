@@ -30,8 +30,13 @@ describe('Using `gulp.watch`', function() {
       expect(err).to.be.null;
       expect(stderr).to.be.empty;
       expect(stdout).to.equal(
-        '├── default  Watch.\n' +
-        '└── watch    Watch.\n' +
+        '├── default   Watch.\n' +
+        '├── watch     Watch.\n' +
+        '├── watch2    Watch2.\n' +
+        '└─┬ watchSet  Watch set.\n' +
+        '  └─┬ <parallel>\n' +
+        '    ├── default\n' +
+        '    └── watch2\n' +
       '');
       done();
     }
@@ -84,7 +89,7 @@ describe('Using `gulp.watch`', function() {
     }, 5000);
 
     function cb(err, stdout, stderr) {
-      expect.to.fail();
+      expect.fail();
       done();
     }
   });

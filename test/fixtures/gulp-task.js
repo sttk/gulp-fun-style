@@ -25,4 +25,3 @@ fun.watch = function() {
 fun.watch.description = 'Watch files and build on change';
 
 fun.default = fun.watch;
-

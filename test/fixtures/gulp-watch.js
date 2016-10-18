@@ -20,4 +20,18 @@ fun.watch = {
 };
 fun.watch.description = 'Watch.';
 
+fun.watch2 = {
+  watch: [watchDir],
+  call: [[ 'task1', 'task2' ]],
+};
+fun.watch2.description = 'Watch2.';
+
+fun.task1 = function() {
+};
+fun.task2 = function() {
+};
+
 fun.default = fun.watch;
+
+fun.watchSet = [ fun.watch, 'watch2' ];
+fun.watchSet.description = 'Watch set.';

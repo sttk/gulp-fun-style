@@ -10,124 +10,18 @@ module.exports = funcMap;
 
 process.nextTick(function() {
   Object.keys(funcMap)
-    .filter(resolveFunc)
+    .filter(resolveFunction)
     .filter(resolveName)
-    .filter(resolveArray)
-    .filter(resolveObject)
-    .filter(shouldBeTask)
-    .filter(registerTask)
+    .filter(resolveArrayOrObject)
+    .filter(isTask)
+    .filter(registerTask);
 });
 
-function resolveFunc(name) {
-  var any = funcMap[name];
-  switch (typeof any) {
-    case 'string': {
-      return true;
-    }
-    case 'function': {
-      var srcName = nameMap.get(any);
-      if (srcName) {
-        funcMap[name] = funcMap[srcName];
-        return true;
-      }
-      nameMap.set(any, name);
-
-      var func = toAsyncable(any, name);
-      funcMap[name] = func;
-      nameMap.set(func, name);
-      return true;
-    }
-    default: {
-      return Array.isArray(any) || isPlainObject(any);
-    }
-  }
+function registerTask(name) {
+  gulp.task(name, funcMap[name]);
 }
 
-function resolveName(name) {
-  var any = funcMap[name];
-  if (typeof any === 'string') {
-    var func = resolveNameRcr(funcMap[name]);
-    if (!func) {
-      return false;
-    }
-    funcMap[name] = func;
-  }
-  return true;
-}
-
-function resolveNameRcr(any) {
-  switch (typeof any) {
-    case 'string': {
-      return resolveNameRcr(funcMap[any]);
-    }
-    case 'function': {
-      break;
-    }
-    default: {
-      if (!Array.isArray(any)) {
-        return null;
-      }
-      break;
-    }
-  }
-
-  var name = nameMap.get(any);
-  if (name) {
-    return funcMap[name];
-  }
-  return any;
-}
-
-
-function resolveArray(name) {
-  var func = resolveArrayRcr(funcMap[name]);
-  if (!func) {
-    return false;
-  }
-  funcMap[name] = func;
-  return true;
-}
-
-function resolveArrayRcr(any) {
-  switch (typeof any) {
-    case 'string': {
-      return resolveArrayRcr(funcMap[any]);
-    }
-    case 'function': {
-      var name = nameMap.get(any);
-      if (name) {
-        return funcMap[name];
-      }
-      return toAsyncable(any);
-    }
-    default: {
-      if (isPlainObject(any)) {
-        return any;
-      }
-      if (!Array.isArray(any) || any.length === 0) {
-        return null;
-      }
-      break;
-    }
-  }
-
-  var composer, funcs;
-
-  if (any.length === 1 && Array.isArray(any[0])) {
-    funcs = any[0].map(resolveArrayRcr).filter(isFunction);
-    composer = gulp.series;
-  } else {
-    funcs = any.map(resolveArrayRcr).filter(isFunction);
-    composer = gulp.parallel;
-  }
-
-  if (!funcs.length) {
-    return null;
-  }
-  return mergeFlags(mergeFlags(copyDesc(composer(funcs), any), funcs), any);
-}
-
-function shouldBeTask(name) {
+function isTask(name) {
   var func = funcMap[name];
   if (func.private) {
     return false;
@@ -135,11 +29,51 @@ function shouldBeTask(name) {
   return (name === 'default' || func.description);
 }
 
-function registerTask(name) {
-  gulp.task(name, funcMap[name]);
+function isString(v) {
+  return typeof v === 'string';
 }
 
-function toAsyncable(func, name) {
+function isFunction(v) {
+  return typeof v === 'function';
+}
+
+function isArray(v) {
+  return Array.isArray(v);
+}
+
+function isPlainObject(v) {
+  return Object.prototype.toString.call(v) === '[object Object]';
+}
+
+function copyDescriptions(to, from) {
+  if (from.description) {
+    to.description = from.description;
+  }
+
+  if (!to.flags) {
+    to.flags = {};
+  }
+
+  if (isArray(from)) {
+    from.forEach(function(child) {
+      to = mergeFlags(to, child);
+    });
+  }
+
+  return mergeFlags(to, from);
+}
+
+function mergeFlags(to, from) {
+  if (isPlainObject(from.flags)) {
+    Object.keys(from.flags).forEach(function(key) {
+      to.flags[key] = from.flags[key];
+    });
+  }
+
+  return to;
+}
+
+function toAsyncable(func, displayName) {
   var wrapFn;
   if (func.length) {
     wrapFn = func;
@@ -149,92 +83,150 @@ function toAsyncable(func, name) {
     };
   }
 
-  name = name || func.displayName || func.name;
-  if (name) {
-    wrapFn.displayName = name;
-  }
-  return mergeFlags(copyDesc(wrapFn, func), func);
-}
-
-function isFunction(v) {
-  return (typeof v === 'function');
-}
-
-function copyDesc(to, from) {
-  if (from.description) {
-    to.description = from.description;
-  }
-  return to;
-}
-
-function mergeFlags(to, from) {
-  to.flags = to.flags || {};
-
-  if (Array.isArray(from)) {
-    for (var i = 0, n = from.length; i < n; i++) {
-      to = mergeFlags(to, from[i]);
-    }
+  displayName = displayName || func.displayName || func.name;
+  if (displayName) {
+    wrapFn.displayName = displayName;
   }
 
-  if (isPlainObject(from.flags)) {
-    var keys = Object.keys(from.flags);
-    for (var i = 0, n = keys.length; i < n; i++) {
-      var key = keys[i];
-      to.flags[key] = from.flags[key];
-    }
-  }
-
-  return to;
+  return copyDescriptions(wrapFn, func);
 }
 
-function isPlainObject(v) {
-  return Object.prototype.toString.call(v) === '[object Object]';
-}
-
-function resolveObject(name) {
+function resolveFunction(name) {
   var any = funcMap[name];
-  if (!isPlainObject(any)) {
-    return true;
-  }
 
-  if ('watch' in any) {
-    var srcName = nameMap.get(any);
-    if (srcName) {
-      funcMap[name] = funcMap[srcName];
+  if (isFunction(any)) {
+    var firstName = nameMap.get(any);
+    if (firstName) {
+      funcMap[name] = funcMap[firstName];
       return true;
     }
     nameMap.set(any, name);
 
-    var func;
-    if (typeof any.call === 'string') {
-      var func = function() {
-        gulp.watch(any.watch, any.opts, funcMap[any.call]);
-      };
-      func = mergeFlags(copyDesc(func, any), any);
-      funcMap[name] = func;
-      return true;
-    }
+    var func = toAsyncable(any, name);
+    funcMap[name] = func;
+    nameMap.set(func, name);
+    return true;
+  }
 
-    if (typeof any.call === 'function') {
-      var func = function() {
-        gulp.watch(any.watch, any.opts, toAsyncable(any.call));
-      };
-      func = mergeFlags(copyDesc(func, any), any);
-      funcMap[name] = func;
-      nameMap.set(func, name);
-      return true;
-    }
+  if (isString(any)) {
+    return true;
+  }
 
-    if (Array.isArray(typeof any.call)) {
-      var func = function() {
-        gulp.watch(any.watch, any.opts, resolveArrayRcr(any.call));
-      };
-      func = mergeFlags(copyDesc(func, any), any);
-      funcMap[name] = func;
-      nameMap.set(func, name);
-      return true;
+  if (isArray(any)) {
+    return true;
+  }
+
+  if (isPlainObject(any)) {
+    return true;
+  }
+
+  return false;
+}
+
+function resolveName(name) {
+  var any = funcMap[name];
+
+  if (isString(any)) {
+    var func = resolveNameRcr(funcMap[name]);
+    if (!func) {
+      return false;
     }
+    funcMap[name] = func;
   }
 
   return true;
 }
+
+function resolveNameRcr(any) {
+  if (isString(any)) {
+    return resolveNameRcr(funcMap[name]);
+  }
+
+  var name = nameMap.get(any);
+  if (name) {
+    return funcMap[name];
+  }
+
+  return any;
+}
+
+function resolveArrayOrObject(name) {
+  var any = funcMap[name];
+  if (isFunction(any)) {
+    return true;
+  }
+
+  var func = resolveArrayOrObjectRcr(any);
+  if (!func) {
+    return false;
+  }
+  nameMap.set(any, name);
+
+  func.displayName = name;
+  funcMap[name] = func;
+  nameMap.set(func, name);
+  return true;
+}
+
+function resolveArrayOrObjectRcr(any) {
+  if (isString(any)) {
+    return resolveArrayOrObjectRcr(funcMap[any]);
+  }
+
+  if (isFunction(any)) {
+    var name = nameMap.get(any);
+    if (name) {
+      return funcMap[name];
+    }
+    return toAsyncable(any);
+  }
+
+  if (isPlainObject(any)) {
+    if ('watch' in any) {
+      var name = nameMap.get(any);
+      if (name) {
+        return funcMap[name];
+      }
+
+      if (isString(any.call)) {
+        return copyDescriptions(function() {
+          gulp.watch(any.watch, any.opts, funcMap[any.call]);
+        }, any);
+      }
+
+      if (isFunction(any.call)) {
+        return copyDescriptions(function() {
+          gulp.watch(any.watch, any.opts, toAsyncable(any.call));
+        }, any);
+      }
+
+      if (isArray(any.call) || isPlainObject(any.call)) {
+        return copyDescriptions(function() {
+          gulp.watch(any.watch, any.opts, resolveArrayOrObjectRcr(any.call));
+        }, any);
+      }
+    }
+    return null;
+  }
+
+  var composer,
+      funcs;
+
+  if (isArray(any)) {
+    if (any.length === 1 && isArray(any[0])) {
+      funcs = any[0].map(resolveArrayOrObjectRcr).filter(isFunction);
+      composer = gulp.series;
+    } else {
+      funcs = any.map(resolveArrayOrObjectRcr).filter(isFunction);
+      composer = gulp.parallel;
+    }
+
+    if (!funcs.length) {
+      return null;
+    }
+    return copyDescriptions(copyDescriptions(composer(funcs), funcs), any);
+  }
+
+  return null;
+}
+
