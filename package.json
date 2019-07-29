@@ -29,11 +29,13 @@
   },
   "devDependencies": {
     "chai": "^3.5.0",
-    "eslint": "^3.5.0",
-    "gulp": "github:gulpjs/gulp#4.0",
-    "gulp-cli": "^1.2.2",
-    "gulp-test-tools": "github:sttk/gulp-test-tools",
-    "mocha": "^3.0.2",
-    "semver": "^5.3.0"
+    "eslint": "^6.1.0",
+    "gulp": "^4.0.2",
+    "gulp-cli": "^2.2.0",
+    "gulp-test-tools": "^0.6.2",
+    "handlebars": ">=4.1.2",
+    "lodash": ">=4.17.15",
+    "mocha": "^3.5.3",
+    "semver": "^6.3.0"
   }
 }
