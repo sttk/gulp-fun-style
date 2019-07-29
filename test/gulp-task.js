@@ -61,11 +61,11 @@ describe('Using gulp.task', function() {
       expect(stderr).to.be.empty;
       expect(stdout).to.equal(
        '├── clean    Delete dist folder\n' +
-       '├── default  Watch files and build on change\n' +
-       '├── scripts  Bundles JavaScript\n' +
        '├── styles   Compiles and bundles CSS\n' +
-       '└── watch    Watch files and build on change\n'
-      );
+       '├── scripts  Bundles JavaScript\n' +
+       '├── watch    Watch files and build on change\n' +
+       '└── default  Watch files and build on change\n' +
+      '');
       done();
     }
   });

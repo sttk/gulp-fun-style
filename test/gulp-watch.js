@@ -11,6 +11,7 @@ var headLines = testtools.headLines;
 
 var path = require('path');
 var fs = require('fs');
+var os = require('os');
 
 var dir = path.join(__dirname, 'out');
 var file1 = path.join(dir, 'file1.txt');
@@ -30,9 +31,9 @@ describe('Using `gulp.watch`', function() {
       expect(err).to.be.null;
       expect(stderr).to.be.empty;
       expect(stdout).to.equal(
-        '├── default   Watch.\n' +
         '├── watch     Watch.\n' +
         '├── watch2    Watch2.\n' +
+        '├── default   Watch.\n' +
         '└─┬ watchSet  Watch set.\n' +
         '  └─┬ <parallel>\n' +
         '    ├── default\n' +
@@ -43,6 +44,10 @@ describe('Using `gulp.watch`', function() {
   });
 
   it('Should run watch task by `gulp`', function(done) {
+    if (os.platform() === 'win32') {
+      this.skip();
+      return;
+    }
     this.timeout(0);
 
     fs.writeFileSync(file1, 'a', 'utf8');
@@ -52,41 +57,56 @@ describe('Using `gulp.watch`', function() {
       .gulp('--gulpfile fixtures/gulp-watch.js')
       .run(cb);
 
+    a();
 
-    setTimeout(function() {
-      expect(fs.readFileSync(file1, 'utf8')).to.equal('a');
-      expect(fs.readFileSync(logFile, 'utf8')).to.equal('');
-      fs.appendFileSync(file1, 'b', 'utf8');
-    }, 1000);
+    function a() {
+      setTimeout(function() {
+        expect(fs.readFileSync(file1, 'utf8')).to.equal('a');
+        expect(fs.readFileSync(logFile, 'utf8')).to.equal('');
+        fs.appendFileSync(file1, 'b', 'utf8');
+        b();
+      }, 5000);
+    }
 
-    setTimeout(function() {
-      expect(fs.readFileSync(file1, 'utf8')).to.equal('ab');
-      expect(fs.readFileSync(logFile, 'utf8')).to.equal('1');
-      fs.appendFileSync(file1, 'c', 'utf8');
-    }, 2000);
+    function b( ){
+      setTimeout(function() {
+        expect(fs.readFileSync(file1, 'utf8')).to.equal('ab');
+        expect(fs.readFileSync(logFile, 'utf8')).to.equal('1');
+        fs.appendFileSync(file1, 'c', 'utf8');
+        c();
+      }, 5000);
+    }
 
-    setTimeout(function() {
-      expect(fs.readFileSync(logFile, 'utf8')).to.equal('12');
-      expect(fs.readFileSync(file1, 'utf8')).to.equal('abc');
-      fs.appendFileSync(file1, 'd', 'utf8');
-    }, 3000);
+    function c( ){
+      setTimeout(function() {
+        expect(fs.readFileSync(logFile, 'utf8')).to.equal('12');
+        expect(fs.readFileSync(file1, 'utf8')).to.equal('abc');
+        fs.appendFileSync(file1, 'd', 'utf8');
+        d();
+      }, 5000);
+    }
 
-    setTimeout(function() {
-      expect(fs.readFileSync(logFile, 'utf8')).to.equal('123');
-      expect(fs.readFileSync(file1, 'utf8')).to.equal('abcd');
-      fs.appendFileSync(file1, 'e', 'utf8');
-    }, 4000);
+    function d( ){
+      setTimeout(function() {
+        expect(fs.readFileSync(logFile, 'utf8')).to.equal('123');
+        expect(fs.readFileSync(file1, 'utf8')).to.equal('abcd');
+        fs.appendFileSync(file1, 'e', 'utf8');
+        e();
+      }, 5000);
+    }
 
-    setTimeout(function() {
-      expect(fs.readFileSync(logFile, 'utf8')).to.equal('1234');
-      expect(fs.readFileSync(file1, 'utf8')).to.equal('abcde');
-      try {
-        child.kill('SIGUP');
-      } catch (e) {}
-      expect(fs.readFileSync(logFile, 'utf8')).to.equal('1234');
-      expect(fs.readFileSync(file1, 'utf8')).to.equal('abcde');
-      done();
-    }, 5000);
+    function e( ){
+      setTimeout(function() {
+        expect(fs.readFileSync(logFile, 'utf8')).to.equal('1234');
+        expect(fs.readFileSync(file1, 'utf8')).to.equal('abcde');
+        try {
+          child.kill('SIGUP');
+        } catch (e) {}
+        expect(fs.readFileSync(logFile, 'utf8')).to.equal('1234');
+        expect(fs.readFileSync(file1, 'utf8')).to.equal('abcde');
+        done();
+      }, 5000);
+    }
 
     function cb(err, stdout, stderr) {
       expect.fail();

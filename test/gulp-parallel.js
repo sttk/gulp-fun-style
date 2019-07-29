@@ -53,17 +53,17 @@ describe('Using gulp.parallel', function() {
       expect(stderr).to.be.empty;
       expect(stdout).to.equal(
         '├── clean    Delete dist folder\n' +
-        '├─┬ default\n' +
-        '│ └─┬ <parallel>\n' +
-        '│   ├── clean\n' +
-        '│   ├─┬ <parallel>\n' +
-        '│   │ ├── styles\n' +
-        '│   │ └── scripts\n' +
-        '│   └── watch\n' +
-        '├── scripts  Bundles JavaScript\n' +
         '├── styles   Compiles and bundles CSS\n' +
-        '└── watch    Watch files and build on change\n'
-      );
+        '├── scripts  Bundles JavaScript\n' +
+        '├── watch    Watch files and build on change\n' +
+        '└─┬ default\n' +
+        '  └─┬ <parallel>\n' +
+        '    ├── clean\n' +
+        '    ├─┬ <parallel>\n' +
+        '    │ ├── styles\n' +
+        '    │ └── scripts\n' +
+        '    └── watch\n' +
+      '');
       done();
     }
   });

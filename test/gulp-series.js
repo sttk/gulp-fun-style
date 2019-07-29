@@ -52,20 +52,20 @@ describe('Using `gulp.series`', function() {
       expect(err).to.be.null;
       expect(stderr).to.be.empty;
       expect(stdout).to.equal(
-        '├─┬ default       Build and watch for changes\n' +
-        '│ │ --comment     …preserve comments\n' +
-        '│ │ --dev         …un-minified js for develop\n' +
-        '│ │ --production  …compressed into single bundle\n' +
-        '│ └─┬ <series>\n' +
-        '│   ├─┬ <series>\n' +
-        '│   │ ├── clean\n' +
-        '│   │ └─┬ <parallel>\n' +
-        '│   │   ├── scripts\n' +
-        '│   │   └── styles\n' +
-        '│   └── watch\n' +
-        '└── serve         Serves files reloading\n' +
-        '    --lr          …with live reloading\n'
-      );
+        '├── serve         Serves files reloading\n' +
+        '│   --lr          …with live reloading\n' +
+        '└─┬ default       Build and watch for changes\n' +
+        '  │ --comment     …preserve comments\n' +
+        '  │ --dev         …un-minified js for develop\n' +
+        '  │ --production  …compressed into single bundle\n' +
+        '  └─┬ <series>\n' +
+        '    ├─┬ <series>\n' +
+        '    │ ├── clean\n' +
+        '    │ └─┬ <parallel>\n' +
+        '    │   ├── scripts\n' +
+        '    │   └── styles\n' +
+        '    └── watch\n' +
+      '');
       done();
     }
   });
